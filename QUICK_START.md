@@ -1,220 +1,228 @@
 # Music Selector - Quick Start Guide
 
-## Overview
+## What This Does
 
-This guide will help you get started with the Music Selector application in under 10 minutes. The application classifies music into three categories: Chills, Hypes, and Trips using a Convolutional Neural Network.
+This guide helps you get the Music Selector app running in under 10 minutes. The app sorts your music into three types: Chills, Hypes, and Trips.
 
-## Prerequisites
+## What You Need
 
-- Python 3.7 or higher
-- Audio files in WAV format
-- Basic understanding of Python and machine learning
+- Python 3.7 or newer
+- Music files in WAV format
+- Basic computer skills
 
-## Installation
+## Step 1: Get the App
 
-1. **Clone or download the project**:
+1. **Download the project**:
    ```bash
    git clone <repository-url>
    cd Music_Selector
    ```
 
-2. **Install dependencies**:
+2. **Install the needed programs**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Prepare your audio data**:
-   Create the following directory structure:
-   ```
-   Music_Selector/
-   ├── Training/
-   │   ├── Chills/
-   │   │   ├── chill_1.wav
-   │   │   ├── chill_2.wav
-   │   │   └── ...
-   │   ├── Hypes/
-   │   │   ├── hype_1.wav
-   │   │   ├── hype_2.wav
-   │   │   └── ...
-   │   └── Trips/
-   │       ├── trip_1.wav
-   │       ├── trip_2.wav
-   │       └── ...
-   └── Test/
-       ├── Chills/
-       ├── Hypes/
-       └── Trips/
-   ```
+3. **Organize your music** (see details below)
 
-## Quick Start
+## Step 2: Organize Your Music
 
-### Option 1: Using the Python Module (Recommended)
+Create folders for your music like this:
 
-1. **Import the module**:
+```
+Music_Selector/
+├── Training/
+│   ├── Chills/
+│   │   ├── chill_1.wav
+│   │   ├── chill_2.wav
+│   │   └── ...
+│   ├── Hypes/
+│   │   ├── hype_1.wav
+│   │   ├── hype_2.wav
+│   │   └── ...
+│   └── Trips/
+│       ├── trip_1.wav
+│       ├── trip_2.wav
+│       └── ...
+└── Test/
+    ├── Chills/
+    ├── Hypes/
+    └── Trips/
+```
+
+**Important**: 
+- Use WAV files only
+- Name files like `chill_1.wav`, `hype_2.wav`, etc.
+- Put some music in Training folders (for learning)
+- Put some music in Test folders (for testing)
+
+## Step 3: Run the App
+
+### Option 1: Easy Way (Recommended)
+
+1. **Open Python** and type:
    ```python
    import music_selector as ms
    ```
 
-2. **Set your data directory** (if different from current directory):
+2. **Set your music folder** (if different from current folder):
    ```python
-   ms.set_home_directory('/path/to/your/data')
+   ms.set_home_directory('/path/to/your/music')
    ```
 
-3. **Run the complete workflow**:
+3. **Run everything**:
    ```python
    model, history, test_acc = ms.complete_workflow()
    ```
 
-### Option 2: Using Individual Functions
+### Option 2: Step by Step
 
-1. **Preprocess your data**:
+1. **Prepare your music**:
    ```python
    import music_selector as ms
    
-   # Process training and test data
+   # Process your music
    ms.preprocess_data('Training')
    ms.preprocess_data('Test')
    ```
 
-2. **Load and prepare data**:
+2. **Load your music**:
    ```python
-   # Load data
+   # Load music data
    train_x, train_y = ms.load_data('Training')
    test_x, test_y = ms.load_data('Test')
    
-   # Prepare datasets
+   # Organize for learning
    Xtrain, Xval, Xtest, ytrain, yval, ytest = ms.prepare_datasets(train_x, train_y, 0.2)
    ```
 
-3. **Train the model**:
+3. **Train the app**:
    ```python
-   # Train model
+   # Teach the app about your music
    model, history = ms.train_model(Xtrain, ytrain, Xval, yval)
    
-   # Plot performance
+   # See how it's learning
    ms.plot_performance(history)
    ```
 
-4. **Evaluate the model**:
+4. **Test the results**:
    ```python
-   # Evaluate on test set
+   # See how well it worked
    test_acc, sample_acc = ms.evaluate_model(model, Xtest, ytest)
    print(f"Test accuracy: {test_acc:.4f}")
    ```
 
-### Option 3: Using the Jupyter Notebook
+### Option 3: Use the Notebook
 
 1. **Open the notebook**:
    ```bash
    jupyter notebook Music_Selector.ipynb
    ```
 
-2. **Follow the cells in order**:
-   - Run the import and setup cells
-   - Execute the data preprocessing cells
-   - Run the model training cells
-   - Evaluate the results
+2. **Follow the steps** in order:
+   - Run the setup code
+   - Process your music
+   - Train the app
+   - See the results
 
-## Expected Results
+## What You'll See
 
-After running the complete workflow, you should see:
+After running the app, you should see:
 
-- **Training progress**: Epoch-by-epoch training with accuracy and loss metrics
-- **Performance plots**: Training and validation accuracy/loss curves
-- **Test results**: Overall test accuracy and sample predictions
-- **Typical performance**: 60-70% test accuracy (may vary based on data quality)
+- **Learning progress**: Shows how well the app is learning from your music
+- **Charts**: Pictures showing learning progress over time
+- **Test results**: How well it sorts new music it hasn't seen before
+- **Typical results**: 60-70% accuracy on new music
 
-## Customization
+## Change Settings
 
-### Adjusting Model Parameters
+### Different Learning Settings
 
 ```python
-# Custom training parameters
+# Use different learning settings
 model, history = ms.train_model(
     Xtrain, ytrain, Xval, yval,
-    epochs=100,           # More training epochs
-    batch_size=32,        # Larger batch size
-    learning_rate=0.0001  # Lower learning rate
+    epochs=100,           # Learn longer
+    batch_size=32,        # Look at more songs at once
+    learning_rate=0.0001  # Learn slower
 )
 ```
 
-### Using Different Data
+### Use Different Music
 
 ```python
-# Set custom directory
-ms.set_home_directory('/path/to/your/custom/data')
+# Point to different music folder
+ms.set_home_directory('/path/to/your/music')
 
-# Process your data
+# Process your music
 ms.preprocess_data('Training')
 ms.preprocess_data('Test')
 ```
 
-### Saving and Loading Models
+### Save Your Work
 
 ```python
-# Save the trained model
-model.save('music_selector_model.h5')
+# Save the trained app
+model.save('my_music_sorter.h5')
 
-# Load the model later
+# Load it later
 from tensorflow import keras
-loaded_model = keras.models.load_model('music_selector_model.h5')
+my_app = keras.models.load_model('my_music_sorter.h5')
 ```
 
-## Troubleshooting
+## Common Problems
 
-### Common Issues
+### "Can't find librosa"
+```bash
+pip install librosa
+```
 
-1. **"No module named 'librosa'"**:
-   ```bash
-   pip install librosa
-   ```
+### "File not found"
+- Check your folder structure matches the example above
+- Make sure music files are WAV format
+- Check file names like `chill_1.wav`, `hype_2.wav`
 
-2. **"File not found" errors**:
-   - Check your directory structure matches the requirements
-   - Ensure audio files are in WAV format
-   - Verify file naming convention: `{type}_{number}.wav`
+### "Not enough memory"
+- Use smaller batch size: `batch_size=8`
+- Use shorter music pieces (change the 20-second setting in the code)
 
-3. **Memory errors**:
-   - Reduce batch size: `batch_size=8`
-   - Use smaller audio segments (modify the 20-second chunk size in the code)
+### "Bad results"
+- Make sure your music files are good quality
+- Check that you labeled them correctly
+- Try adding more music to learn from
 
-4. **Poor performance**:
-   - Ensure audio files are high quality
-   - Check that labels are correctly assigned
-   - Try increasing training data
+### Need More Help?
 
-### Getting Help
+- Check the [Detailed Instructions](API_DOCUMENTATION.md)
+- Look at the [README](README.md) for project overview
+- Read the [Clean Code](music_selector.py) for examples
 
-- Check the full [API Documentation](API_DOCUMENTATION.md)
-- Review the [README.md](README.md) for project overview
-- Examine the [music_selector.py](music_selector.py) module for detailed function documentation
+## What's Next?
 
-## Next Steps
-
-1. **Improve the model**:
-   - Collect more training data
-   - Experiment with different architectures
-   - Try data augmentation techniques
-
-2. **Deploy the model**:
-   - Save the trained model
-   - Create a prediction API
-   - Build a web interface
-
-3. **Extend functionality**:
+1. **Make it better**:
+   - Add more music to learn from
+   - Try different learning settings
    - Add more music categories
-   - Implement real-time prediction
-   - Create a music recommendation system
 
-## Example Output
+2. **Use it**:
+   - Save your trained app
+   - Sort new music automatically
+   - Build a music recommendation system
+
+3. **Share it**:
+   - Show others how to use it
+   - Help improve the code
+   - Share your music sorting results
+
+## Example of What You'll See
 
 ```
 === Music Selector Complete Workflow ===
 
 1. Processing training data...
-Processing: chill_1.wav --- 8 music data vectors are created.
-Processing: hype_1.wav --- 9 music data vectors are created.
-Processing: trip_1.wav --- 12 music data vectors are created.
+Processing: chill_1.wav --- 8 music pieces created.
+Processing: hype_1.wav --- 9 music pieces created.
+Processing: trip_1.wav --- 12 music pieces created.
 ...
 
 2. Loading data...
@@ -231,7 +239,7 @@ Epoch 1/50
 12/12 [==============================] - 10s 62ms/step - loss: 2.0942 - acc: 0.5430
 
 5. Plotting performance...
-[Displays training curves]
+[Shows learning charts]
 
 6. Evaluating model...
 Test accuracy: 0.6809
@@ -240,4 +248,4 @@ Sample prediction accuracy: 9/10
 === Workflow Complete ===
 ```
 
-Congratulations! You've successfully set up and run the Music Selector application.
+**Great job! You've successfully set up and run the Music Selector app.**

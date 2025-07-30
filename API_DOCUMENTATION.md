@@ -1,109 +1,95 @@
-# Music Selector - API Documentation
+# Music Selector - Function Guide
 
-## Overview
+## What This App Does
 
-The Music Selector is a TensorFlow-based application that determines personal music preferences by classifying audio files into three categories: Chills, Hypes, and Trips. The system uses Convolutional Neural Networks (CNN) to analyze MFCC (Mel-frequency cepstral coefficients) features extracted from audio files.
+The Music Selector helps you automatically sort your music into three mood categories: Chills, Hypes, and Trips. It learns from your music files and can predict which category new songs belong to.
 
 ## Table of Contents
 
-1. [Project Structure](#project-structure)
-2. [Data Processing Functions](#data-processing-functions)
-3. [Model Architecture](#model-architecture)
-4. [Training and Evaluation Functions](#training-and-evaluation-functions)
+1. [Project Files](#project-files)
+2. [Music Processing Functions](#music-processing-functions)
+3. [Learning System](#learning-system)
+4. [Training and Testing Functions](#training-and-testing-functions)
 5. [Prediction Functions](#prediction-functions)
 6. [Usage Examples](#usage-examples)
-7. [Dependencies](#dependencies)
+7. [What You Need](#what-you-need)
 
-## Project Structure
+## Project Files
 
 ```
 Music_Selector/
-├── Music_Selector.ipynb          # Main Jupyter notebook with all functions
-├── README.md                     # Project overview
-├── API_DOCUMENTATION.md          # This documentation file
-└── .gitignore                    # Git ignore file
+├── Music_Selector.ipynb          # Main notebook with all functions
+├── music_selector.py             # Clean version of the code
+├── API_DOCUMENTATION.md          # This guide
+├── QUICK_START.md               # Simple getting started guide
+├── requirements.txt             # List of needed software
+├── README.md                    # Project overview
+└── .gitignore                   # Git settings
 ```
 
-## Data Processing Functions
+## Music Processing Functions
 
 ### `preprocess_data(Training_or_Test)`
 
-**Purpose**: Processes raw WAV audio files and extracts MFCC features for training or testing.
+**What it does**: Takes your music files and prepares them for the learning system.
 
-**Parameters**:
-- `Training_or_Test` (str): Either 'Training' or 'Test' to specify the dataset type
+**What you give it**:
+- `Training_or_Test` (text): Either 'Training' or 'Test' to tell it which music to process
 
-**Returns**: None (saves data to JSON file)
+**What it does**:
+1. Looks through your music folders
+2. Reads each WAV file
+3. Cuts each song into 20-second pieces
+4. Analyzes the sound patterns in each piece
+5. Saves all the information in a file
 
-**Description**: 
-This function processes audio files from the specified directory structure:
-- `Training/` or `Test/` directory containing subdirectories for each music type
-- Subdirectories: `Chills/`, `Hypes/`, `Trips/`
-- Each subdirectory contains `.wav` files
-
-**Process**:
-1. Iterates through each music type directory
-2. Loads each WAV file using librosa
-3. Segments audio into 20-second chunks
-4. Extracts MFCC features from each chunk
-5. Assigns labels: 0 (Chills), 1 (Hypes), 2 (Trips)
-6. Saves all data to a JSON file: `{Training_or_Test}_data.json`
-
-**Example Usage**:
+**How to use it**:
 ```python
-# Process training data
+# Process music for learning
 preprocess_data('Training')
 
-# Process test data
+# Process music for testing
 preprocess_data('Test')
 ```
 
-**Output Format**:
-```json
-{
-    "labels": [0, 0, 1, 1, 2, 2, ...],
-    "mfccs": [[[mfcc_features]], [[mfcc_features]], ...]
-}
-```
+**What it creates**:
+- A file called `Training_data.json` or `Test_data.json` with all the music information
 
 ### `check_data(Training_or_Test)`
 
-**Purpose**: Loads and visualizes processed data to verify the preprocessing results.
+**What it does**: Shows you what your processed music looks like.
 
-**Parameters**:
-- `Training_or_Test` (str): Either 'Training' or 'Test' to specify the dataset
+**What you give it**:
+- `Training_or_Test` (text): Either 'Training' or 'Test'
 
-**Returns**: None (displays visualizations)
+**What it shows**:
+- How many music pieces you have
+- Pictures of the sound patterns from different music types
 
-**Description**:
-- Loads the JSON file created by `preprocess_data()`
-- Prints the number of MFCC vectors and their shape
-- Displays spectrograms for sample data points from each music type
-
-**Example Usage**:
+**How to use it**:
 ```python
 check_data('Training')
 check_data('Test')
 ```
 
-**Output**:
+**What you'll see**:
 ```
-292 mfcc vectors with shape (862, 20).
-[Displays spectrogram plots]
+292 music pieces with shape (862, 20).
+[Shows pictures of sound patterns]
 ```
 
 ### `load_data(Training_or_Test)`
 
-**Purpose**: Loads processed data from JSON files for model training/testing.
+**What it does**: Loads your processed music data for the learning system.
 
-**Parameters**:
-- `Training_or_Test` (str): Either 'Training' or 'Test' to specify the dataset
+**What you give it**:
+- `Training_or_Test` (text): Either 'Training' or 'Test'
 
-**Returns**:
-- `x` (numpy.ndarray): MFCC features with shape (n_samples, 862, 20)
-- `y` (numpy.ndarray): Labels with shape (n_samples,)
+**What you get back**:
+- `x`: The sound pattern data
+- `y`: The labels (0=Chills, 1=Hypes, 2=Trips)
 
-**Example Usage**:
+**How to use it**:
 ```python
 train_x, train_y = load_data('Training')
 test_x, test_y = load_data('Test')
@@ -111,59 +97,49 @@ print(f"Training data shape: {train_x.shape}")
 print(f"Training labels shape: {train_y.shape}")
 ```
 
-## Model Architecture
+## Learning System
 
 ### `design_model(input_shape)`
 
-**Purpose**: Creates a Convolutional Neural Network (CNN) model for music classification.
+**What it does**: Creates the learning system (called a "neural network") that will study your music.
 
-**Parameters**:
-- `input_shape` (tuple): Shape of input data (height, width, channels)
+**What you give it**:
+- `input_shape` (numbers): The size of your music data
 
-**Returns**:
-- `model` (tf.keras.Model): Compiled CNN model
+**What you get back**:
+- A learning system ready to study your music
 
-**Architecture**:
-```
-1. Conv2D(32, 3x3) + ReLU
-2. MaxPooling2D(3x3, stride=2) + BatchNormalization
-3. Conv2D(32, 3x3) + ReLU
-4. MaxPooling2D(3x3, stride=2) + BatchNormalization
-5. Conv2D(32, 2x2) + ReLU
-6. MaxPooling2D(3x3, stride=2) + BatchNormalization + Dropout(0.3)
-7. Flatten()
-8. Dense(64) + ReLU
-9. Dense(10) + Softmax
-```
+**How the learning system works**:
+1. Looks at sound patterns in your music
+2. Learns what makes "chill" music different from "hype" music
+3. Gets better at sorting as it sees more examples
 
-**Example Usage**:
+**How to use it**:
 ```python
-input_shape = (862, 20, 1)  # MFCC features with channel dimension
+input_shape = (862, 20, 1)  # Size of your music data
 model = design_model(input_shape)
 model.summary()
 ```
 
-## Training and Evaluation Functions
+## Training and Testing Functions
 
 ### `prepare_datasets(inputs, targets, split_size)`
 
-**Purpose**: Splits data into training, validation, and test sets and prepares them for CNN input.
+**What it does**: Organizes your music data for learning and testing.
 
-**Parameters**:
-- `inputs` (numpy.ndarray): Input features
-- `targets` (numpy.ndarray): Target labels
-- `split_size` (float): Fraction of data to use for validation/test (e.g., 0.2)
+**What you give it**:
+- `inputs`: Your music data
+- `targets`: The labels (Chills/Hypes/Trips)
+- `split_size` (number): How much to use for testing (like 0.2 for 20%)
 
-**Returns**:
-- `inputs_train, inputs_val, inputs_test`: Training, validation, and test features
-- `targets_train, targets_val, targets_test`: Training, validation, and test labels
+**What you get back**:
+- Six sets of data: training, validation, and test data for both music and labels
 
-**Description**:
-- Performs two train-test splits to create validation and test sets
-- Adds channel dimension to inputs for CNN compatibility
-- Returns 6 arrays: training, validation, and test data for both inputs and targets
+**What it does**:
+- Splits your music into learning and testing parts
+- Prepares the data in the right format for the learning system
 
-**Example Usage**:
+**How to use it**:
 ```python
 Xtrain, Xval, Xtest, ytrain, yval, ytest = prepare_datasets(train_x, train_y, 0.2)
 print(f"Training set: {Xtrain.shape}")
@@ -173,19 +149,16 @@ print(f"Test set: {Xtest.shape}")
 
 ### `plot_performance(hist)`
 
-**Purpose**: Visualizes training and validation performance metrics.
+**What it does**: Shows you charts of how well the learning system is working.
 
-**Parameters**:
-- `hist` (tf.keras.callbacks.History): Training history object from model.fit()
+**What you give it**:
+- `hist`: The learning history from training
 
-**Returns**: None (displays plots)
+**What it shows**:
+1. How well the system is learning over time
+2. How well it's doing on new music it hasn't seen before
 
-**Description**:
-Creates two plots:
-1. Training and validation accuracy over epochs
-2. Training and validation loss over epochs
-
-**Example Usage**:
+**How to use it**:
 ```python
 history = model.fit(Xtrain, ytrain, validation_data=(Xval, yval), epochs=50)
 plot_performance(history)
@@ -195,43 +168,42 @@ plot_performance(history)
 
 ### `make_prediction(model, X, y, idx)`
 
-**Purpose**: Makes predictions on individual samples and compares with ground truth.
+**What it does**: Tests the learning system on one specific song.
 
-**Parameters**:
-- `model` (tf.keras.Model): Trained model
-- `X` (numpy.ndarray): Input features
-- `y` (numpy.ndarray): Ground truth labels
-- `idx` (int): Index of the sample to predict
+**What you give it**:
+- `model`: Your trained learning system
+- `X`: Music data
+- `y`: Correct labels
+- `idx`: Which song to test
 
-**Returns**:
-- `int`: 1 if prediction is correct, 0 otherwise
+**What you get back**:
+- 1 if the prediction was correct, 0 if it was wrong
 
-**Description**:
-- Makes prediction on the specified sample
-- Maps numeric predictions to music type names
-- Prints prediction result and ground truth
-- Returns binary accuracy indicator
+**What it does**:
+- Makes a prediction about which category a song belongs to
+- Compares it to the correct answer
+- Shows you the result
 
-**Music Type Mapping**:
-- 0: "Chills"
-- 1: "Hypes" 
-- 2: "Trips"
+**Music Categories**:
+- 0: "Chills" (relaxing music)
+- 1: "Hypes" (energetic music) 
+- 2: "Trips" (experimental music)
 
-**Example Usage**:
+**How to use it**:
 ```python
-# Test individual predictions
+# Test one song
 correct = make_prediction(model, Xtest, ytest, 0)
 
-# Test multiple predictions
+# Test multiple songs
 nums_correct = 0
 for i in range(10):
     nums_correct += make_prediction(model, Xtest, ytest, i)
-print(f"Accuracy: {nums_correct}/10")
+print(f"Got {nums_correct} out of 10 correct")
 ```
 
 ## Usage Examples
 
-### Complete Workflow Example
+### Complete Example
 
 ```python
 import os
@@ -240,35 +212,35 @@ import numpy as np
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
-# 1. Preprocess data
-print("Processing training data...")
+# 1. Process your music
+print("Processing training music...")
 preprocess_data('Training')
-print("Processing test data...")
+print("Processing test music...")
 preprocess_data('Test')
 
-# 2. Load data
-print("Loading data...")
+# 2. Load your music
+print("Loading music...")
 train_x, train_y = load_data('Training')
 test_x, test_y = load_data('Test')
 
-# 3. Prepare datasets
-print("Preparing datasets...")
+# 3. Organize for learning
+print("Organizing data...")
 Xtrain, Xval, Xtest, ytrain, yval, ytest = prepare_datasets(train_x, train_y, 0.2)
 
-# 4. Build model
-print("Building model...")
+# 4. Create learning system
+print("Creating learning system...")
 input_shape = (Xtrain.shape[1], Xtrain.shape[2], 1)
 model = design_model(input_shape)
 
-# 5. Compile model
+# 5. Set up learning
 model.compile(
     optimizer=tf.keras.optimizers.RMSprop(lr=0.001),
     loss='sparse_categorical_crossentropy',
     metrics=['acc']
 )
 
-# 6. Train model
-print("Training model...")
+# 6. Train the system
+print("Training...")
 history = model.fit(
     Xtrain, ytrain,
     validation_data=(Xval, yval),
@@ -276,25 +248,25 @@ history = model.fit(
     batch_size=16
 )
 
-# 7. Plot performance
+# 7. Show results
 plot_performance(history)
 
-# 8. Evaluate on test set
-print("Evaluating model...")
+# 8. Test on new music
+print("Testing...")
 test_loss, test_acc = model.evaluate(Xtest, ytest)
 print(f"Test accuracy: {test_acc:.4f}")
 
-# 9. Make predictions
-print("Making predictions...")
+# 9. Test individual songs
+print("Testing individual songs...")
 nums_correct = 0
 for i in range(10):
     nums_correct += make_prediction(model, Xtest, ytest, i)
-print(f"Sample prediction accuracy: {nums_correct}/10")
+print(f"Got {nums_correct} out of 10 songs correct")
 ```
 
-### Data Structure Requirements
+### How to Organize Your Music
 
-**Directory Structure**:
+**Folder Structure**:
 ```
 Music_Selector/
 ├── Training/
@@ -316,92 +288,96 @@ Music_Selector/
     └── Trips/
 ```
 
-**Audio File Requirements**:
-- Format: WAV files
-- Naming convention: `{type}_{number}.wav` (e.g., `chill_1.wav`, `hype_2.wav`)
-- Duration: Variable length (will be segmented into 20-second chunks)
-- Sample rate: Automatically handled by librosa
+**Music File Requirements**:
+- **Format**: WAV files only
+- **Names**: Use format like `chill_1.wav`, `hype_2.wav`
+- **Length**: Any length (will be cut into 20-second pieces)
+- **Quality**: Better quality = better results
 
-## Dependencies
+## What You Need
 
-### Required Python Packages
+### Required Software
 
 ```python
-# Core dependencies
+# Core programs
 import os
 import pickle as pkl
 import json
 import warnings
 
-# Audio processing
+# Music processing
 import librosa
 import librosa.display
 
-# Data manipulation and visualization
+# Data and charts
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Machine learning
+# Learning system
 import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
-# Google Colab (if using Colab environment)
+# Google Colab (if using Colab)
 from google.colab import drive
 ```
 
-### Installation
+### How to Install
 
 ```bash
 pip install tensorflow librosa matplotlib numpy scikit-learn
 ```
 
-### Environment Setup
+### Setting Up Your Environment
 
-For Google Colab:
+**For Google Colab**:
 ```python
-# Mount Google Drive
+# Connect to Google Drive
 from google.colab import drive
 drive.mount('/content/drive')
 
-# Set home directory
+# Set your music folder
 HOME_DIR = '/content/drive/MyDrive/Music_Selector/'
 ```
 
-For local environment:
+**For your computer**:
 ```python
-# Set home directory to current working directory
+# Set music folder to current directory
 HOME_DIR = './'
 ```
 
-## Performance Metrics
+## How Well It Works
 
-The model typically achieves:
-- Training accuracy: ~95-100%
-- Validation accuracy: ~60-70%
-- Test accuracy: ~60-70%
+The learning system typically achieves:
+- **Learning accuracy**: 95-100% (how well it learns from your music)
+- **Test accuracy**: 60-70% (how well it sorts new music it hasn't seen before)
 
-**Note**: The model shows signs of overfitting, which is common with small datasets. Consider:
-- Data augmentation
-- Regularization techniques
-- Collecting more training data
-- Using pre-trained models
+**Note**: Results depend on:
+- How much music you provide
+- How good the music quality is
+- How clearly different the music categories are
 
-## Troubleshooting
+## Common Problems
 
-### Common Issues
+### Problems You Might Have
 
-1. **File not found errors**: Ensure audio files are in the correct directory structure
-2. **Memory errors**: Reduce batch size or use smaller audio segments
-3. **Poor performance**: Check audio file quality and ensure proper labeling
-4. **Import errors**: Verify all dependencies are installed
+1. **"File not found"**: Check your folder structure and file names
+2. **"Not enough memory"**: Use smaller batch sizes or shorter music pieces
+3. **"Bad results"**: Check music quality and make sure labels are correct
+4. **"Can't import"**: Make sure all software is installed
 
-### Debugging Tips
+### Tips for Better Results
 
-- Use `check_data()` to verify preprocessing results
-- Monitor training curves with `plot_performance()`
-- Test individual predictions with `make_prediction()`
-- Check data shapes at each step of the pipeline
+- Use `check_data()` to see your processed music
+- Watch learning progress with `plot_performance()`
+- Test individual songs with `make_prediction()`
+- Check data shapes at each step
 
-## License
+## Getting Help
 
-This project is open source. Please refer to the original repository for licensing information.
+- Check the [Quick Start Guide](QUICK_START.md) for simple instructions
+- Look at the [README](README.md) for project overview
+- Read the [Clean Code](music_selector.py) for detailed examples
+
+## Legal Information
+
+This project is open source. Check the original repository for license details.
